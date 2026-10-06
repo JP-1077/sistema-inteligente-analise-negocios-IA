@@ -1,0 +1,152 @@
+[data-testid="stAppViewContainer"] {
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(15, 23, 42, 0.95),
+            transparent 42%
+        ),
+        #020617;
+
+    color: #e5e7eb;
+}
+
+[data-testid="stHeader"] {
+    background: transparent;
+}
+
+[data-testid="stMainBlockContainer"] {
+    max-width: 1920px;
+    padding: 2rem clamp(1rem, 3vw, 3.5rem) 3rem;
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+
+    border-bottom: 1px solid #1e293b;
+}
+
+.app-title {
+    margin: 0;
+
+    color: #e5e7eb;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.app-description {
+    margin-top: 0.45rem;
+
+    color: #94a3b8;
+    font-size: 0.95rem;
+}
+
+.stage-badge {
+    flex-shrink: 0;
+
+    padding: 0.4rem 0.75rem;
+
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 999px;
+
+    background: rgba(56, 189, 248, 0.12);
+    color: #38bdf8;
+
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* ======================================================
+   SECTIONS
+====================================================== */
+
+.section-heading {
+    margin: 0 0 1rem;
+
+    color: #e5e7eb;
+
+    font-size: 1.05rem;
+    font-weight: 600;
+
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+/* ======================================================
+   CONTAINERS
+====================================================== */
+
+[data-testid="stVerticalBlockBorderWrapper"] {
+    background: rgba(22, 24, 39, 0.92);
+
+    border-color: #3b3d4b;
+    border-radius: 12px;
+}
+
+/* ======================================================
+   FILE UPLOADER
+====================================================== */
+
+[data-testid="stFileUploaderDropzone"] {
+    border: 1px dashed #334155;
+    border-radius: 12px;
+
+    background: rgba(15, 23, 42, 0.55);
+}
+
+[data-testid="stFileUploaderDropzone"]:hover {
+    border-color: #38bdf8;
+}
+
+/* ======================================================
+   BUTTONS
+====================================================== */
+
+[data-testid="stButton"] > button {
+    min-height: 2.8rem;
+
+    border: 0;
+    border-radius: 9px;
+
+    background: #0284c7;
+    color: #ffffff;
+
+    font-weight: 600;
+
+    transition: background 150ms ease;
+}
+
+[data-testid="stButton"] > button:hover {
+    border: 0;
+
+    background: #0ea5e9;
+    color: #ffffff;
+}
+
+/* ======================================================
+   RESPONSIVIDADE
+====================================================== */
+
+@media (max-width: 600px) {
+
+    [data-testid="stMainBlockContainer"] {
+        padding: 1.5rem 0.75rem;
+    }
+
+    .app-header {
+        flex-direction: column;
+    }
+
+    .app-title {
+        font-size: 1.5rem;
+    }
+}

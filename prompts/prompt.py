@@ -105,41 +105,14 @@ def criar_prompt_diagnostico(analise: dict) -> str:
 
     Estruture a resposta exatamente nesta ordem:
 
-    ### 📊 Resumo Executivo
+   ### 📊 O que aconteceu
+   Resumo dos principais resultados.
 
-    [Resumo]
+   ### 🔍 Por que aconteceu
+   Possíveis causas e relações observadas.
 
-    ### 🚨 KPIs Críticos
-
-    [KPIs críticos]
-
-    ### 📈 Crescimentos e Quedas
-
-    [Análise]
-
-    ### ⚠️ Anomalias
-
-    [Anomalias]
-
-    ### 🔎 Relação entre Indicadores
-
-    [Relações encontradas]
-
-    ### 🎯 Possíveis Causas
-
-    [Causas e hipóteses]
-
-    ### 💼 Impacto no Negócio
-
-    [Impactos]
-
-    ### 🚀 Plano de Ação
-
-    [Ações recomendadas]
-
-    ### 📋 Elemento visual (Gráficos)
-
-    [Visual que possa melhorar a visualização da análise]
+   ### 🚀 O que fazer agora
+   Recomendações práticas e priorizadas.
 
     # Formato de respostas
 
