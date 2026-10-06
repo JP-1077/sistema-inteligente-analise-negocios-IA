@@ -254,7 +254,21 @@ kpi-business-analyzer/
 
 ---
 
-## 7. Conclusão do projeto
+## 7. Configuração da Gemini API
+
+Copie o arquivo `.env.example` para `.env` e informe sua chave da Gemini API:
+
+```env
+CHAVE_API=sua_chave_gemini
+NOME_API=gemini-2.5-flash
+```
+
+Mantenha o arquivo `.env` local e não compartilhe sua chave. Para iniciar a
+aplicação, execute `streamlit run app.py`. Ao clicar em **Analisar indicadores**,
+o sistema calcula os KPIs do arquivo enviado, envia o resumo para a Gemini API
+e apresenta o diagnóstico na interface.
+
+## 8. Conclusão do projeto
 
 O **Analisador Inteligente de KPIs e Métricas** combina desenvolvimento de sistemas, processamento de dados e Inteligência Artificial generativa para auxiliar na interpretação de indicadores empresariais.
 
