@@ -2,6 +2,7 @@ from typing import Any
 
 import pandas as pd
 import streamlit as st
+from google.genai.errors import APIError
 
 from prompts.prompt import criar_prompt_diagnostico
 from services.service_api_gemini import ServiceApiGemini
@@ -28,8 +29,8 @@ def renderizar_secao_analise(dados: pd.DataFrame | None, arquivo_enviado: bool) 
 
     try:
         diagnostico = _gerar_diagnostico(analise)
-    except Exception:
-        st.error("Não foi possível gerar o diagnóstico neste momento.")
+    except (APIError, ValueError) as erro:
+        st.error(f"Não foi possível gerar o diagnóstico: {erro}")
         return
 
     _renderizar_diagnostico(diagnostico)
@@ -93,7 +94,7 @@ def _renderizar_indicadores(analise: dict[str, Any]) -> None:
 def _gerar_diagnostico(analise: dict[str, Any]) -> str:
     """Gera o diagnóstico com base na análise dos indicadores."""
     prompt = criar_prompt_diagnostico(analise)
-    diagnostico = ServiceApiGemini.gerar_resposta(prompt)
+    diagnostico = ServiceApiGemini().envio_diagnostico(prompt)
     return diagnostico
 
 def _renderizar_diagnostico(diagnostico: str) -> None:
