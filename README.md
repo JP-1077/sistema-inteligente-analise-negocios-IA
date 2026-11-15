@@ -2,7 +2,7 @@
 
 ## 1. Visão geral
 
-O **Analisador Inteligente de KPIs e Métricas** é um MVP desenvolvido em Python com o objetivo de auxiliar gestores e profissionais de negócios na análise de indicadores corporativos.
+O **Sistema Inteligente Analise Negocios IA** é um MVP desenvolvido em Python com o objetivo de auxiliar gestores e profissionais de negócios na análise de indicadores corporativos.
 
 A aplicação permite que o usuário faça upload de arquivos **CSV ou Excel** contendo dados relacionados ao seu segmento do négocio.
 
