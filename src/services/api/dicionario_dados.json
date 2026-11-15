@@ -1,0 +1,266 @@
+{
+    "type": "object",
+    "properties": {
+        "ingestao": {
+            "type": "object",
+            "properties": {
+                "nome_arquivo": {"type": "string"},
+                "avisos": {
+                    "type": "array",
+                    "items": {"type": "string"}
+                },
+                "relatorio_qualidade": {
+                    "type": "object",
+                    "properties": {
+                        "metadados_arquivo": {
+                            "type": "object",
+                            "properties": {
+                                "nome_arquivo": {"type": "string"},
+                                "extensao": {"type": "string"},
+                                "tamanho_bytes": {"type": ["integer", "null"]},
+                                "tamanho_kb": {"type": ["number", "null"]},
+                                "total_registros": {"type": "integer"},
+                                "total_colunas": {"type": "integer"},
+                                "nomes_colunas": {
+                                    "type": "array",
+                                    "items": {"type": "string"}
+                                }
+                            },
+                            "required": [
+                                "nome_arquivo",
+                                "extensao",
+                                "tamanho_bytes",
+                                "tamanho_kb",
+                                "total_registros",
+                                "total_colunas",
+                                "nomes_colunas"
+                            ]
+                        },
+                        "amostra_dataframe": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        },
+                        "qualidade_dados": {
+                            "type": "object",
+                            "properties": {
+                                "colunas": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "nome": {"type": "string"},
+                                            "tipo": {"type": "string"},
+                                            "valores_ausentes": {"type": "integer"},
+                                            "percentual_ausente": {"type": "number"},
+                                            "valores_unicos": {"type": "integer"}
+                                        },
+                                        "required": [
+                                            "nome",
+                                            "tipo",
+                                            "valores_ausentes",
+                                            "percentual_ausente",
+                                            "valores_unicos"
+                                        ]
+                                    }
+                                },
+                                "linhas_duplicadas": {"type": "integer"},
+                                "total_valores_ausentes": {"type": "integer"},
+                                "percentual_valores_ausentes": {"type": "number"}
+                            },
+                            "required": [
+                                "colunas",
+                                "linhas_duplicadas",
+                                "total_valores_ausentes",
+                                "percentual_valores_ausentes"
+                            ]
+                        }
+                    },
+                    "required": [
+                        "metadados_arquivo",
+                        "amostra_dataframe",
+                        "qualidade_dados"
+                    ]
+                }
+            },
+            "required": [
+                "nome_arquivo",
+                "relatorio_qualidade",
+                "avisos"
+            ]
+        },
+        "analise": {
+            "type": "object",
+            "properties": {
+                "resumo": {
+                    "type": "object",
+                    "properties": {
+                        "total_registros": {"type": "integer"},
+                        "total_colunas": {"type": "integer"},
+                        "metricas_identificadas": {"type": "integer"},
+                        "analise_temporal_disponivel": {"type": "boolean"}
+                    },
+                    "required": [
+                        "total_registros",
+                        "total_colunas",
+                        "metricas_identificadas",
+                        "analise_temporal_disponivel"
+                    ]
+                },
+                "perfil_dados": {
+                    "type": "object",
+                    "properties": {
+                        "total_registros": {"type": "integer"},
+                        "total_colunas": {"type": "integer"},
+                        "colunas_numericas": {
+                            "type": "array",
+                            "items": {"type": "string"}
+                        },
+                        "colunas_data": {
+                            "type": "array",
+                            "items": {"type": "string"}
+                        },
+                        "colunas_categoricas": {
+                            "type": "array",
+                            "items": {"type": "string"}
+                        },
+                        "valores_ausentes": {
+                            "type": "object",
+                            "additionalProperties": {"type": "integer"}
+                        }
+                    },
+                    "required": [
+                        "total_registros",
+                        "total_colunas",
+                        "colunas_numericas",
+                        "colunas_data",
+                        "colunas_categoricas",
+                        "valores_ausentes"
+                    ]
+                },
+                "metricas_identificadas": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "nome": {"type": "string"},
+                            "tipo": {"type": "string"},
+                            "registros_validos": {"type": "integer"},
+                            "valores_unicos": {"type": "integer"},
+                            "analises_disponiveis": {
+                                "type": "array",
+                                "items": {"type": "string"}
+                            }
+                        },
+                        "required": [
+                            "nome",
+                            "tipo",
+                            "registros_validos",
+                            "valores_unicos",
+                            "analises_disponiveis"
+                        ]
+                    }
+                },
+                "estatisticas": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                            "quantidade": {"type": "integer"},
+                            "media": {"type": "number"},
+                            "mediana": {"type": "number"},
+                            "minimo": {"type": "number"},
+                            "maximo": {"type": "number"},
+                            "desvio_padrao": {"type": ["number", "null"]},
+                            "soma": {"type": "number"}
+                        },
+                        "required": [
+                            "quantidade",
+                            "media",
+                            "mediana",
+                            "minimo",
+                            "maximo",
+                            "desvio_padrao",
+                            "soma"
+                        ]
+                    }
+                },
+                "tendencias": {
+                    "type": "object",
+                    "properties": {
+                        "disponivel": {"type": "boolean"},
+                        "coluna_temporal": {"type": "string"},
+                        "resultados": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "object",
+                                "properties": {
+                                    "data_anterior": {"type": "string"},
+                                    "data_atual": {"type": "string"},
+                                    "valor_anterior": {"type": "number"},
+                                    "valor_atual": {"type": "number"},
+                                    "variacao_absoluta": {"type": "number"},
+                                    "variacao_percentual": {"type": ["number", "null"]},
+                                    "direcao": {
+                                        "type": "string",
+                                        "enum": ["aumento", "queda", "estavel"]
+                                    }
+                                },
+                                "required": [
+                                    "data_anterior",
+                                    "data_atual",
+                                    "valor_anterior",
+                                    "valor_atual",
+                                    "variacao_absoluta",
+                                    "variacao_percentual",
+                                    "direcao"
+                                ]
+                            }
+                        },
+                        "motivo": {"type": ["string", "null"]}
+                    },
+                    "required": ["disponivel", "resultados", "motivo"]
+                },
+                "anomalias": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                            "metodo": {"type": "string", "enum": ["IQR"]},
+                            "limite_inferior": {"type": "number"},
+                            "limite_superior": {"type": "number"},
+                            "quantidade_anomalias": {"type": "integer"},
+                            "indices": {
+                                "type": "array",
+                                "items": {"type": ["integer", "string"]}
+                            },
+                            "valores": {
+                                "type": "array",
+                                "items": {"type": "number"}
+                            }
+                        },
+                        "required": [
+                            "metodo",
+                            "limite_inferior",
+                            "limite_superior",
+                            "quantidade_anomalias",
+                            "indices",
+                            "valores"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "resumo",
+                "perfil_dados",
+                "metricas_identificadas",
+                "estatisticas",
+                "tendencias",
+                "anomalias"
+            ]
+        }
+    },
+    "required": ["ingestao", "analise"]
+}

@@ -1,6 +1,5 @@
 import streamlit as st
 from streamlit.runtime.uploaded_file_manager import UploadedFile
-from services.service_dados import ServiceDados
 
 
 SUPPORTED_FILE_TYPES = ["csv", "xlsx", "xls"]

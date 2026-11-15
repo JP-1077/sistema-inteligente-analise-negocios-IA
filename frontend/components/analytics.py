@@ -2,15 +2,14 @@ from typing import Any
 
 import pandas as pd
 import streamlit as st
-from google.genai.errors import APIError
 
-from prompts.prompt import criar_prompt_diagnostico
-from services.service_api_gemini import ServiceApiGemini
-from services.service_analytics import KPIanaliser
+from src.prompts.prompt import criar_prompt_diagnostico
+from src.services.api.service_gemini import (GeminiServiceError, analise_indicadores_gemini,)
+from src.services.service_analytics_ import service_analytics
 
 
 def renderizar_secao_analise(dados: pd.DataFrame | None, arquivo_enviado: bool) -> None:
-    st.subheader("Resulta da análise")
+    st.subheader("Resultado da análise")
 
     if not _renderizar_botao_analise():
         _renderizar_estado_inicial()
@@ -20,7 +19,7 @@ def renderizar_secao_analise(dados: pd.DataFrame | None, arquivo_enviado: bool) 
         return
     
     try:
-        analise = KPIanaliser.analise(dados)
+        analise = service_analytics(dados)
     except ValueError as erro:
         st.error(str(erro))
         return
@@ -29,7 +28,7 @@ def renderizar_secao_analise(dados: pd.DataFrame | None, arquivo_enviado: bool) 
 
     try:
         diagnostico = _gerar_diagnostico(analise)
-    except (APIError, ValueError) as erro:
+    except (GeminiServiceError, ValueError) as erro:
         st.error(f"Não foi possível gerar o diagnóstico: {erro}")
         return
 
@@ -70,17 +69,34 @@ def _validar_dados(dados: pd.DataFrame | None, arquivo_enviado: bool) -> bool:
 
 def _renderizar_indicadores(analise: dict[str, Any]) -> None:
     """Renderiza os indicadores identificados na análise."""
-    indicadores = [
-        {
-            "KPI": nome,
-            "Valor anterior": valores["previous_value"],
-            "Valor atual": valores["current_value"],
-            "Variação (%)": valores["variation"],
-            "Status": valores["status"],
-            "Tendência": valores["trend"],
-        }
-        for nome, valores in analise["kpis"].items()
-    ]
+    estatisticas = analise["estatisticas"]
+    resultados_temporais = analise["tendencias"]["resultados"]
+    anomalias = analise["anomalias"]
+    indicadores = []
+
+    for metrica in analise["metricas_identificadas"]:
+        nome = metrica["nome"]
+        estatistica = estatisticas.get(nome, {})
+        tendencia = resultados_temporais.get(nome, {})
+        anomalia = anomalias.get(nome)
+
+        indicadores.append(
+            {
+                "Indicador": nome,
+                "Média": estatistica.get("media"),
+                "Mínimo": estatistica.get("minimo"),
+                "Máximo": estatistica.get("maximo"),
+                "Valor anterior": tendencia.get("valor_anterior"),
+                "Valor atual": tendencia.get("valor_atual"),
+                "Variação (%)": tendencia.get("variacao_percentual"),
+                "Tendência": tendencia.get("direcao"),
+                "Anomalias": (
+                    anomalia["quantidade_anomalias"]
+                    if anomalia is not None
+                    else "Não avaliado"
+                ),
+            }
+        )
 
     st.markdown("#### Indicadores identificados")
 
@@ -94,8 +110,7 @@ def _renderizar_indicadores(analise: dict[str, Any]) -> None:
 def _gerar_diagnostico(analise: dict[str, Any]) -> str:
     """Gera o diagnóstico com base na análise dos indicadores."""
     prompt = criar_prompt_diagnostico(analise)
-    diagnostico = ServiceApiGemini().envio_diagnostico(prompt)
-    return diagnostico
+    return analise_indicadores_gemini(prompt)
 
 def _renderizar_diagnostico(diagnostico: str) -> None:
     """Renderiza o diagnóstico gerado pela IA."""

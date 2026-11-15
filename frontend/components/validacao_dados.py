@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
-from services.service_dados import ServiceDados
+from src.services.service_ingestao_dados_input import service_ingestao_arquivo
 
 
 limite_linhas_visualizacao = 10
@@ -16,10 +16,17 @@ def load_uploaded_dataframe(uploaded_file: UploadedFile | None) -> pd.DataFrame 
         return None
 
     try:
-        dataframe = ServiceDados.leitura_arquivo(uploaded_file)
+        resultado = service_ingestao_arquivo(
+            file=uploaded_file,
+            filename=uploaded_file.name,
+        )
     except ValueError as error:
         st.error(str(error))
         return None
+
+    dataframe = resultado["dataframe"]
+    for aviso in resultado["avisos"]:
+        st.warning(aviso)
 
     normalized_dataframe = dataframe.copy()
     normalized_dataframe.columns = normalized_dataframe.columns.map(str)
