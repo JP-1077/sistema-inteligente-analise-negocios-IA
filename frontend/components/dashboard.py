@@ -7,6 +7,7 @@ e registre-a em CATALOGO_GRAFICOS.
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import TypedDict
 
 import numpy as np
 import pandas as pd
@@ -35,6 +36,8 @@ GRAFICO_COMPARACAO = "comparacao"
 CHAVE_VISOES = "painel_visoes"
 CHAVE_GRAFICOS = "painel_graficos"
 CHAVE_GRAFICOS_POR_LINHA = "painel_graficos_por_linha"
+CHAVE_PREFERENCIAS = "preferencias_dashboard"
+CHAVE_ESTATISTICAS_RESUMO = "estatisticas_resumo_dashboard"
 
 
 # ---------------------------------------------------------------------------
@@ -51,6 +54,13 @@ class ContextoPainel:
     coluna_temporal: str | None
     coluna_categorica: str | None
     colunas_numericas: list[str]
+
+
+class EstatisticasResumo(TypedDict):
+    total_registros: int
+    registros_validos: int
+    media_metrica: float | None
+    indicadores_numericos: int
 
 
 @dataclass(frozen=True)
@@ -140,6 +150,13 @@ def _renderizar_painel_interativo(
         colunas_categoricas=colunas_categoricas,
         preferencias=preferencias,
     )
+    _registrar_preferencias(
+        metrica=metrica,
+        coluna_temporal=coluna_temporal,
+        coluna_categorica=coluna_categorica,
+        preferencias=preferencias,
+        estatisticas_resumo=None,
+    )
 
     if not preferencias.visoes:
         st.info("Selecione ao menos uma visão em **Personalizar painel**.")
@@ -159,9 +176,22 @@ def _renderizar_painel_interativo(
         colunas_numericas=colunas_numericas,
     )
 
+    estatisticas_resumo = (
+        _obter_estatisticas_resumo(contexto)
+        if VISAO_RESUMO in preferencias.visoes
+        else None
+    )
+    _registrar_preferencias(
+        metrica=metrica,
+        coluna_temporal=coluna_temporal,
+        coluna_categorica=coluna_categorica,
+        preferencias=preferencias,
+        estatisticas_resumo=estatisticas_resumo,
+    )
+
     # A ordem de exibição é fixa, independente da ordem dos cliques
-    if VISAO_RESUMO in preferencias.visoes:
-        _renderizar_resumo(contexto)
+    if VISAO_RESUMO in preferencias.visoes and estatisticas_resumo is not None:
+        _renderizar_resumo(contexto, estatisticas_resumo)
 
     if VISAO_GRAFICOS in preferencias.visoes:
         _renderizar_graficos(contexto, preferencias, graficos_disponiveis)
@@ -276,20 +306,60 @@ def _renderizar_filtros(
 # Visões
 # ---------------------------------------------------------------------------
 
-def _renderizar_resumo(contexto: ContextoPainel) -> None:
+def _obter_estatisticas_resumo(
+    contexto: ContextoPainel,
+) -> EstatisticasResumo:
+    media = contexto.valores_metrica.mean()
+    return {
+        "total_registros": len(contexto.dados),
+        "registros_validos": int(contexto.valores_metrica.notna().sum()),
+        "media_metrica": None if pd.isna(media) else float(media),
+        "indicadores_numericos": len(contexto.colunas_numericas),
+    }
+
+
+def _registrar_preferencias(
+    metrica: str,
+    coluna_temporal: str | None,
+    coluna_categorica: str | None,
+    preferencias: PreferenciasPainel,
+    estatisticas_resumo: EstatisticasResumo | None,
+) -> None:
+    st.session_state[CHAVE_ESTATISTICAS_RESUMO] = estatisticas_resumo
+    st.session_state[CHAVE_PREFERENCIAS] = {
+        "metrica_principal": metrica,
+        "eixo_temporal": coluna_temporal,
+        "coluna_categorica": coluna_categorica,
+        "visoes": list(preferencias.visoes),
+        "graficos": list(preferencias.graficos),
+        "graficos_por_linha": preferencias.graficos_por_linha,
+        "estatisticas_resumo": estatisticas_resumo,
+    }
+
+
+def _renderizar_resumo(
+    contexto: ContextoPainel,
+    estatisticas: EstatisticasResumo,
+) -> None:
     """Renderiza os indicadores resumidos da base."""
     cartoes = st.columns(4)
 
-    cartoes[0].metric("Registros", _formatar_inteiro(len(contexto.dados)))
+    cartoes[0].metric(
+        "Registros",
+        _formatar_inteiro(estatisticas["total_registros"]),
+    )
     cartoes[1].metric(
         "Registros válidos",
-        _formatar_inteiro(int(contexto.valores_metrica.notna().sum())),
+        _formatar_inteiro(estatisticas["registros_validos"]),
     )
     cartoes[2].metric(
         f"Média de {contexto.metrica}",
-        _formatar_numero(contexto.valores_metrica.mean()),
+        _formatar_numero(estatisticas["media_metrica"]),
     )
-    cartoes[3].metric("Indicadores numéricos", len(contexto.colunas_numericas))
+    cartoes[3].metric(
+        "Indicadores numéricos",
+        estatisticas["indicadores_numericos"],
+    )
 
 
 def _renderizar_graficos(
@@ -542,7 +612,7 @@ def _renderizar_titulo() -> None:
     st.markdown('<p class="section-heading">Dashboard dos dados</p>', unsafe_allow_html=True)
 
 
-def _formatar_numero(valor: float | int) -> str:
+def _formatar_numero(valor: float | int | None) -> str:
     """Formata um número utilizando o padrão brasileiro."""
     if pd.isna(valor):
         return "-"

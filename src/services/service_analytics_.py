@@ -22,6 +22,7 @@ from .analyzers.metricas_temporais import calculo_anaise_temporais
 from .analyzers.anomalias import calculo_anomalias
 
 
+
 def service_analytics( df: pd.DataFrame, date_column: str | None = None,) -> dict:
     """
     Função responsável por executar as análises disponíveis para um dataframe.
@@ -50,20 +51,35 @@ def service_analytics( df: pd.DataFrame, date_column: str | None = None,) -> dic
 
     profile = estrutura_dados(df)
     metrics = identificacao_metricas(df)
-    descriptive = calculo_metricas(df)
-    trends = calculo_anaise_temporais(df, date_column=date_column)
+    statistics = calculo_metricas(df)
+    temporal = calculo_anaise_temporais(df, date_column=date_column)
     anomalies = calculo_anomalias(df)
+
+    kpi_values = {}
+    if isinstance(metrics, list):
+        for metric in metrics:
+            if not isinstance(metric, dict) or "nome" not in metric:
+                continue
+
+            column = metric["nome"]
+            series = pd.to_numeric(df[column], errors="coerce").dropna()
+            kpi_values[column] = [
+                float(value) if not float(value).is_integer() else int(value)
+                for value in series.tolist()
+            ]
+            metric["valores"] = kpi_values[column].copy()
 
     return {
         "resumo": {
             "total_registros": len(df),
             "total_colunas": len(df.columns),
             "metricas_identificadas": len(metrics),
-            "analise_temporal_disponivel": trends["disponivel"],
+            "analise_temporal_disponivel": bool(temporal["disponivel"]),
         },
         "perfil_dados": profile,
         "metricas_identificadas": metrics,
-        "estatisticas": descriptive,
-        "tendencias": trends,
+        "valores_kpis": kpi_values,
+        "estatisticas": statistics,
+        "analise_temporal": temporal,
         "anomalias": anomalies,
     }

@@ -5,23 +5,25 @@ import streamlit as st
 
 from src.prompts.prompt import criar_prompt_diagnostico
 from src.services.api.service_gemini import (GeminiServiceError, analise_indicadores_gemini,)
-from src.services.service_analytics_ import service_analytics
 
 
 def renderizar_secao_analise(dados: pd.DataFrame | None, arquivo_enviado: bool) -> None:
     st.markdown("#### Análise com IA")
 
     if not _renderizar_botao_analise():
-        _renderizar_estado_inicial()
+        diagnostico = st.session_state.get("diagnostico")
+        if diagnostico:
+            _renderizar_diagnostico(diagnostico)
+        else:
+            _renderizar_estado_inicial()
         return
 
     if not _validar_dados(dados=dados, arquivo_enviado=arquivo_enviado):
         return
     
-    try:
-        analise = service_analytics(dados)
-    except ValueError as erro:
-        st.error(str(erro))
+    analise = st.session_state.get("analise")
+    if not isinstance(analise, dict):
+        st.error("Não foi possível gerar o diagnóstico porque a análise não está disponível.")
         return
 
     try:
@@ -30,14 +32,7 @@ def renderizar_secao_analise(dados: pd.DataFrame | None, arquivo_enviado: bool) 
         st.error(f"Não foi possível gerar o diagnóstico: {erro}")
         return
 
-    _renderizar_diagnostico(diagnostico)
-
-    try:
-        diagnostico = _gerar_diagnostico(analise)
-    except (GeminiServiceError, ValueError) as erro:
-        st.error(f"Não foi possível gerar o diagnóstico: {erro}")
-        return
-
+    st.session_state["diagnostico"] = diagnostico
     _renderizar_diagnostico(diagnostico)
 
 

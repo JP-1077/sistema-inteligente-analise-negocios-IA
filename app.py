@@ -12,6 +12,7 @@ from frontend.components import (
     renderizar_painel,
     renderizar_secao_analise,
     renderizar_secao_indicadores,
+    render_report_exportacao
 )
 from frontend.styles import load_global_styles
 
@@ -24,6 +25,7 @@ PAGE_TITLE: Final[str] = "Sistema de Análise de Dados"
 PAGE_ICON: Final[str] = "📊"
 PAGE_LAYOUT: Final[str] = "wide"
 SIDEBAR_INITIAL_STATE: Final[str] = "collapsed"
+LIMITE_REGISTROS_SESSION_STATE: Final[int] = 10_000
 
 
 def configure_page() -> None:
@@ -91,7 +93,16 @@ def render_analytics(dados: pd.DataFrame | None, arquivo_enviado: bool) -> None:
         coluna_indicadores, coluna_ia = st.columns([3, 2], gap="large")
 
         with coluna_indicadores, st.container(border=True):
-            renderizar_secao_indicadores(dados=dados, arquivo_enviado=arquivo_enviado)
+            analise = renderizar_secao_indicadores(
+                dados=dados,
+                arquivo_enviado=arquivo_enviado,
+            )
+
+        if analise is None:
+            st.session_state.pop("analise", None)
+            st.session_state.pop("diagnostico", None)
+        else:
+            st.session_state["analise"] = analise
 
         with coluna_ia, st.container(border=True):
             renderizar_secao_analise(dados=dados, arquivo_enviado=arquivo_enviado)
@@ -122,6 +133,39 @@ def render_dashboard_section(dataframe: pd.DataFrame | None) -> None:
         renderizar_painel(dataframe)
 
 
+def _atualizar_estado_sessao(
+    uploaded_file: UploadedFile | None,
+    dataframe: pd.DataFrame | None,
+) -> None:
+    """Compartilha os dados da sessão sem reter bases grandes na memória."""
+    if uploaded_file is None:
+        for chave in (
+            "nome_arquivo",
+            "dataframe",
+            "analise",
+            "diagnostico",
+            "preferencias_dashboard",
+            "estatisticas_resumo_dashboard",
+            "_arquivo_id",
+        ):
+            st.session_state.pop(chave, None)
+        return
+
+    if st.session_state.get("_arquivo_id") != uploaded_file.file_id:
+        st.session_state.pop("analise", None)
+        st.session_state.pop("diagnostico", None)
+        st.session_state.pop("preferencias_dashboard", None)
+        st.session_state.pop("estatisticas_resumo_dashboard", None)
+
+    st.session_state["_arquivo_id"] = uploaded_file.file_id
+    st.session_state["nome_arquivo"] = uploaded_file.name
+    st.session_state["dataframe"] = (
+        dataframe
+        if dataframe is not None and len(dataframe) <= LIMITE_REGISTROS_SESSION_STATE
+        else None
+    )
+
+
 # ---------------------------------------------------------------------------
 # Orquestração da aplicação
 # ---------------------------------------------------------------------------
@@ -134,10 +178,16 @@ def main() -> None:
     header()
 
     uploaded_file, dataframe = render_data_section()
+    _atualizar_estado_sessao(uploaded_file, dataframe)
 
     render_analytics(dados=dataframe, arquivo_enviado=uploaded_file is not None)
 
     render_dashboard_section(dataframe)
+    render_report_exportacao(
+        dados=dataframe,
+        nome_arquivo=st.session_state.get("nome_arquivo"),
+        diagnostico=st.session_state.get("diagnostico"),
+    )
 
 
 
