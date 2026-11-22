@@ -132,6 +132,30 @@
     color: #ffffff;
 }
 
+.st-key-download_report_pdf [data-testid="stDownloadButton"] > button {
+    border: 0;
+    background: #dc2626;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.st-key-download_report_pdf [data-testid="stDownloadButton"] > button:hover {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+.st-key-download_report_markdown [data-testid="stDownloadButton"] > button {
+    border: 0;
+    background: #38bdf8;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.st-key-download_report_markdown [data-testid="stDownloadButton"] > button:hover {
+    background: #0ea5e9;
+    color: #ffffff;
+}
+
 /* ======================================================
    RESPONSIVIDADE
 ====================================================== */

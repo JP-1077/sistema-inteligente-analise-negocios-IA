@@ -47,11 +47,14 @@ def identificacao_metricas(df: pd.DataFrame) -> list[dict]:
             "registros_validos": int(series.count()),
             "valores_unicos": int(series.nunique()),
             "analises_disponiveis": [
-            "estatisticas_descritivas",
-            "distribuicao",
-            "deteccao_anomalias",
-        ]
-
+                "estatisticas_descritivas",
+                "distribuicao",
+                "deteccao_anomalias",
+            ],
+            "valores": [
+                float(value) if not float(value).is_integer() else int(value)
+                for value in series.tolist()
+            ],
         })
 
     return metricas

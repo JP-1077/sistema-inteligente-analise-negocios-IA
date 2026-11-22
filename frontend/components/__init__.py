@@ -4,6 +4,7 @@ from frontend.components.validacao_dados import load_uploaded_dataframe, render_
 from frontend.components.upload_arquivos import render_file_upload
 from frontend.components.header import header
 from frontend.components.indicadores import renderizar_secao_indicadores
+from frontend.components.report import render_report_exportacao
 
 
 __all__ = [
@@ -14,4 +15,5 @@ __all__ = [
     "render_file_upload",
     "header",
     "renderizar_secao_indicadores"
+    "render_report_exportacao"
 ]

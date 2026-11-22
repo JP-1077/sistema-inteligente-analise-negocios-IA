@@ -109,3 +109,23 @@ def test_analytics_rejeita_resultado_temporal_sem_disponibilidade(monkeypatch):
     assert resultado["resumo"]["analise_temporal_disponivel"] is False
 
 
+def test_analytics_retorna_os_valores_reais_dos_kpis():
+    df = pd.DataFrame({
+        "data": ["2025-01-01", "2025-01-02"],
+        "vendas": [100, 125],
+        "clientes": [10, 12],
+    })
+
+    resultado = analytics_service.service_analytics(df)
+
+    assert resultado["valores_kpis"]["vendas"] == [100, 125]
+    assert resultado["valores_kpis"]["clientes"] == [10, 12]
+
+    vendas = next(
+        metrica
+        for metrica in resultado["metricas_identificadas"]
+        if metrica["nome"] == "vendas"
+    )
+    assert vendas["valores"] == [100, 125]
+
+
