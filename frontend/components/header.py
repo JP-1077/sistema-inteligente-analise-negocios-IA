@@ -1,22 +1,22 @@
 import streamlit as st
-
+import html
+from textwrap import dedent
 
 
 def header():
-    titulo = "Sistema inteligente análise de negócios (Desenvolvimento Software + IA) 📊"
-    descrição = "Analise seus indicadores de negócio com o apoio da inteligência artificial."
-    label = "João Pedro Mendes Fonseca | Desenvolvedor Software"
+    titulo = "Sistema Análise de Dados"
+    descrição = "Analise seus indicadores de negócio de forma mais rápida e eficiente."
+    label = "João Pedro Mendes Fonseca Software Developer"
 
-    st.markdown(
+    conteudo = dedent(
         f"""
         <header class="app-header">
             <div>
-                <h1 class="app-title">{titulo}</h1>
-                <p class="app-description">{descrição}</p>
+                <h1 class="app-title">{html.escape(titulo)}</h1>
+                <p class="app-description">{html.escape(descrição)}</p>
             </div>
-
-            <span class="stage-badge">{label}</span>
+            <span class="stage-badge">{html.escape(label)}</span>
         </header>
-        """,
-        unsafe_allow_html=True
-    )
+        """)
+
+    st.markdown(conteudo, unsafe_allow_html=True)

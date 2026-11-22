@@ -11,6 +11,7 @@ from frontend.components import (
     render_file_upload,
     renderizar_painel,
     renderizar_secao_analise,
+    renderizar_secao_indicadores,
 )
 from frontend.styles import load_global_styles
 
@@ -19,14 +20,13 @@ from frontend.styles import load_global_styles
 # Configurações da página
 # ---------------------------------------------------------------------------
 
-PAGE_TITLE: Final[str] = "Sistema de Análise de Negócios + IA"
+PAGE_TITLE: Final[str] = "Sistema de Análise de Dados"
 PAGE_ICON: Final[str] = "📊"
 PAGE_LAYOUT: Final[str] = "wide"
 SIDEBAR_INITIAL_STATE: Final[str] = "collapsed"
 
 
 def configure_page() -> None:
-    """Configura os metadados e o layout global da aplicação."""
     st.set_page_config(
         page_title=PAGE_TITLE,
         page_icon=PAGE_ICON,
@@ -74,50 +74,52 @@ def render_data_section() -> tuple[
 
     return uploaded_file, dataframe
 
+# ---------------------------------------------------------------------------
+# Seção de Analytics
+# ---------------------------------------------------------------------------
 
+def render_analytics(dados: pd.DataFrame | None, arquivo_enviado: bool) -> None:
+    """Renderiza a seção de análise com IA.
+
+    Args:
+        dados: DataFrame contendo os dados a serem analisados.
+        arquivo_enviado: Indica se um arquivo foi enviado pelo usuário.
+    """
+    with st.container(border=True):
+        st.subheader("Resultado da análise")
+
+        coluna_indicadores, coluna_ia = st.columns([3, 2], gap="large")
+
+        with coluna_indicadores, st.container(border=True):
+            renderizar_secao_indicadores(dados=dados, arquivo_enviado=arquivo_enviado)
+
+        with coluna_ia, st.container(border=True):
+            renderizar_secao_analise(dados=dados, arquivo_enviado=arquivo_enviado)
 
 # ---------------------------------------------------------------------------
 # Seção do dashboard
 # ---------------------------------------------------------------------------
 
-def render_dashboard_section(
-    dataframe: pd.DataFrame | None,
-) -> None:
+def render_dashboard_section(dataframe: pd.DataFrame | None) -> None:
     """Renderiza o dashboard quando houver dados disponíveis.
 
     Args:
         dataframe:
             DataFrame carregado a partir do arquivo enviado pelo usuário.
     """
-    if dataframe is None:
-        return
 
     with st.container(border=True):
+        st.subheader("Painel de Dashboard")
+
+        if dataframe is None:
+            st.warning("Nenhum arquivo carregado. Disponibilize um arquivo para visualizar as análises.")
+            return
+        
+        if dataframe.empty:
+            st.warning("O arquivo enviado não contém registros. Verifique o conteúdo e tente novamente.")
+            return
+
         renderizar_painel(dataframe)
-
-# ---------------------------------------------------------------------------
-# Seção de análise com IA
-# ---------------------------------------------------------------------------
-
-def render_ai_analysis_section(
-    uploaded_file: UploadedFile | None,
-    dataframe: pd.DataFrame | None,
-) -> None:
-    """Renderiza a seção de análise dos indicadores com IA.
-
-    Args:
-        uploaded_file:
-            Arquivo enviado pelo usuário.
-
-        dataframe:
-            DataFrame carregado e validado.
-    """
-    with st.container(border=True):
-        renderizar_secao_analise(
-            dados=dataframe,
-            arquivo_enviado=uploaded_file is not None,
-        )
-
 
 
 # ---------------------------------------------------------------------------
@@ -133,12 +135,10 @@ def main() -> None:
 
     uploaded_file, dataframe = render_data_section()
 
+    render_analytics(dados=dataframe, arquivo_enviado=uploaded_file is not None)
+
     render_dashboard_section(dataframe)
 
-    render_ai_analysis_section(
-        uploaded_file=uploaded_file,
-        dataframe=dataframe,
-    )
 
 
 if __name__ == "__main__":

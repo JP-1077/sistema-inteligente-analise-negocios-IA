@@ -3,6 +3,7 @@ from frontend.components.dashboard import renderizar_painel
 from frontend.components.validacao_dados import load_uploaded_dataframe, render_data_preview
 from frontend.components.upload_arquivos import render_file_upload
 from frontend.components.header import header
+from frontend.components.indicadores import renderizar_secao_indicadores
 
 
 __all__ = [
@@ -11,5 +12,6 @@ __all__ = [
     "renderizar_painel",
     "render_data_preview",
     "render_file_upload",
-    "header"
+    "header",
+    "renderizar_secao_indicadores"
 ]
